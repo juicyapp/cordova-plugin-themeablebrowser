@@ -1219,7 +1219,7 @@ public class ThemeableBrowser extends CordovaPlugin {
 
             // Otherwise allow the OS to handle it
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            view.getContext().startActivity( intent );
+            webView.getContext().startActivity( intent );
             return true;
         }
 
