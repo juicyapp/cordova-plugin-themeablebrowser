@@ -21,6 +21,7 @@ package com.initialxy.cordova.themeablebrowser;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -1184,6 +1185,37 @@ public class ThemeableBrowser extends CordovaPlugin {
                 boolean canGoForward);
     }
 
+
+    // Thanks to http://floresosvaldo.com/android-cordova-plugin-checking-if-an-app-exists
+    public boolean appInstalled(String uri) {
+        Context ctx = this.cordova.getActivity().getApplicationContext();
+        final PackageManager pm = ctx.getPackageManager();
+        boolean app_installed = false;
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            app_installed = true;
+        }
+        catch(PackageManager.NameNotFoundException e) {
+            app_installed = false;
+        }
+        return app_installed;
+    }
+
+    public void openApplication(Context context, String packageN) {
+        Intent i = context.getPackageManager().getLaunchIntentForPackage(packageN);
+        if (i != null) {
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            context.startActivity(i);
+        } else {
+            try {
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageN)));
+            }
+            catch (android.content.ActivityNotFoundException anfe) {
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + packageN)));
+            }
+        }
+    }
+
     /**
      * The webview client receives notifications about appView
      */
@@ -1215,12 +1247,15 @@ public class ThemeableBrowser extends CordovaPlugin {
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
             if( url.startsWith("http:") || url.startsWith("https:") ) {
                 return false;
+            } else if (url.startsWith("market:")){
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                webView.getContext().startActivity( intent );
+                return true;               
+            } else if (url.startsWith("tapngo:")){
+                openApplication(webView.getContext(), "com.hktpayment.tapngo");
+                return true;
             }
-
-            // Otherwise allow the OS to handle it
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            webView.getContext().startActivity( intent );
-            return true;
+            return false;
         }
 
         /*
