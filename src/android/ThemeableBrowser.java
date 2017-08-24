@@ -1201,17 +1201,17 @@ public class ThemeableBrowser extends CordovaPlugin {
         return app_installed;
     }
 
-    public void openApplication(Context context, String packageN) {
-        Intent i = context.getPackageManager().getLaunchIntentForPackage(packageN);
+    public void openApplication(Context context, String packageName) {
+        Intent i = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (i != null) {
             i.addCategory(Intent.CATEGORY_LAUNCHER);
             context.startActivity(i);
         } else {
             try {
-                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageN)));
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
             }
             catch (android.content.ActivityNotFoundException anfe) {
-                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + packageN)));
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + packageName)));
             }
         }
     }
